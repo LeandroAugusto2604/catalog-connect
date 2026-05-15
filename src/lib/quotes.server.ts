@@ -1,6 +1,5 @@
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-
 const ADMIN_EMAIL = "leandro.soneca186@gmail.com";
+const GMAIL_GATEWAY = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 
 type QuoteItem = {
   product_name: string;
@@ -49,32 +48,79 @@ export async function sendQuoteEmails(payload: {
   });
 
   await Promise.allSettled([
-    enqueueEmail({
+    sendGmail({
       to: customer.email,
       subject: "Recebemos seu orçamento",
       html: customerHtml,
-      text: `Olá ${customer.name},\n\nRecebemos seu orçamento. Itens:\n${itemsText}\n\nTotal: R$ ${total.toFixed(2)}\n\nEm breve entraremos em contato.`,
     }),
-    enqueueEmail({
+    sendGmail({
       to: ADMIN_EMAIL,
       subject: `Novo orçamento — ${customer.name}`,
       html: adminHtml,
-      text: `Novo orçamento de ${customer.name} (${customer.email}, ${customer.whatsapp})\nEndereço: ${customer.address}\n\n${itemsText}\n\nTotal: R$ ${total.toFixed(2)}`,
+      replyTo: customer.email,
     }),
   ]);
 }
 
-async function enqueueEmail(args: {
+async function sendGmail(args: {
   to: string;
   subject: string;
   html: string;
-  text: string;
+  replyTo?: string;
 }) {
-  const { error } = await supabaseAdmin.rpc("enqueue_email" as never, {
-    queue_name: "transactional_emails",
-    payload: args,
-  } as never);
-  if (error) throw error;
+  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+  const GOOGLE_MAIL_API_KEY = process.env.GOOGLE_MAIL_API_KEY;
+  if (!GOOGLE_MAIL_API_KEY) throw new Error("GOOGLE_MAIL_API_KEY is not configured");
+
+  const raw = buildRawEmail(args);
+  const res = await fetch(`${GMAIL_GATEWAY}/users/me/messages/send`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": GOOGLE_MAIL_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ raw }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Gmail send failed [${res.status}]: ${body}`);
+  }
+}
+
+function buildRawEmail(args: {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+}) {
+  const subjectEncoded = `=?UTF-8?B?${b64(args.subject)}?=`;
+  const headers = [
+    `To: ${args.to}`,
+    `Subject: ${subjectEncoded}`,
+    "MIME-Version: 1.0",
+    'Content-Type: text/html; charset="UTF-8"',
+    "Content-Transfer-Encoding: base64",
+  ];
+  if (args.replyTo) headers.push(`Reply-To: ${args.replyTo}`);
+  const body = chunk(b64(args.html), 76);
+  const raw = headers.join("\r\n") + "\r\n\r\n" + body;
+  return b64url(raw);
+}
+
+function b64(s: string) {
+  return Buffer.from(s, "utf-8").toString("base64");
+}
+function b64url(s: string) {
+  return Buffer.from(s, "utf-8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+function chunk(s: string, n: number) {
+  return s.match(new RegExp(`.{1,${n}}`, "g"))?.join("\r\n") ?? s;
 }
 
 function escapeHtml(s: string) {
