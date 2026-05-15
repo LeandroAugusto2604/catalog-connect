@@ -33,14 +33,13 @@ function Index() {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 -z-10 opacity-90"
-          style={{ background: "var(--gradient-hero)" }}
-        />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_50%)]" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.15),transparent_50%)]" />
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "var(--gradient-hero)" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_50%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.15),transparent_50%)]" />
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-medium text-white backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             Orçamento rápido e sem compromisso
