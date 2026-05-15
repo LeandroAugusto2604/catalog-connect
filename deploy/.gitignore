@@ -1,0 +1,3 @@
+# Não versionar segredos locais montados na VPS
+.env
+.dev.vars

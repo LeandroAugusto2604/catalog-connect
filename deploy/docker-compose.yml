@@ -1,0 +1,22 @@
+# Sobe o app na VPS na porta 3000 (loopback). Nginx faz o proxy + SSL.
+# Uso:  docker compose -f deploy/docker-compose.yml up -d --build
+
+services:
+  catalogo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
+    container_name: catalogo-app
+    restart: unless-stopped
+    ports:
+      # Bind apenas no loopback — Nginx é quem expõe a porta 443 ao mundo
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # .dev.vars contém as variáveis runtime do worker (server-only)
+      - ./.dev.vars:/app/.dev.vars:ro
+    environment:
+      NODE_ENV: production
