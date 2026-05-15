@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrcamentoIdRouteImport } from './routes/orcamento.$id'
 
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const OrcamentoIdRoute = OrcamentoIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/orcamento/$id': typeof OrcamentoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/orcamento/$id': typeof OrcamentoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/checkout': typeof CheckoutRoute
   '/orcamento/$id': typeof OrcamentoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkout' | '/orcamento/$id'
+  fullPaths: '/' | '/admin' | '/checkout' | '/orcamento/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout' | '/orcamento/$id'
-  id: '__root__' | '/' | '/checkout' | '/orcamento/$id'
+  to: '/' | '/admin' | '/checkout' | '/orcamento/$id'
+  id: '__root__' | '/' | '/admin' | '/checkout' | '/orcamento/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CheckoutRoute: typeof CheckoutRoute
   OrcamentoIdRoute: typeof OrcamentoIdRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CheckoutRoute: CheckoutRoute,
   OrcamentoIdRoute: OrcamentoIdRoute,
 }
