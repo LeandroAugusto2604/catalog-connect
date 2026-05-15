@@ -149,7 +149,7 @@ function Index() {
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <span
                       className="text-xl font-bold bg-clip-text text-transparent"
-                      style={{ backgroundImage: "var(--gradient-primary)" }}
+                      style={{ backgroundImage: "var(--gradient-gold)" }}
                     >
                       {formatBRL(Number(p.price))}
                     </span>
