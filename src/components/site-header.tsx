@@ -9,10 +9,16 @@ export function SiteHeader() {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="text-lg font-semibold tracking-tight">
-          Catálogo Digital
+        <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+          <span
+            className="inline-block h-7 w-7 rounded-lg"
+            style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+          />
+          <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
+            Catálogo Digital
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           <Button
